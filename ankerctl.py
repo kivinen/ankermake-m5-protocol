@@ -55,8 +55,9 @@ pass_env = click.make_pass_decorator(Environment)
 @click.option("--insecure", "-k", is_flag=True, help="Disable TLS certificate validation")
 @click.option("--verbose", "-v", count=True, help="Increase verbosity")
 @click.option("--quiet", "-q", count=True, help="Decrease verbosity")
+@click.option("--printer", "-p", type=int, default=0, help="Select printer number")
 @click.pass_context
-def main(ctx, verbose, quiet, insecure):
+def main(ctx, verbose, quiet, insecure, printer):
     ctx.ensure_object(Environment)
     env = ctx.obj
 
@@ -80,6 +81,9 @@ def main(ctx, verbose, quiet, insecure):
         urllib3.disable_warnings()
 
     env.upgrade_config_if_needed()
+
+    env.printer = printer
+    log.debug(f"Using printer [{env.printer}]");
 
 
 @main.group("mqtt", help="Low-level mqtt api access")
@@ -439,13 +443,15 @@ def config_show(env):
         print()
 
         log.info("Printers:")
-        for p in cfg.printers:
+        for i, p in enumerate(cfg.printers):
+            print(f"    printer:   {i}")
             print(f"    duid:      {p.p2p_duid}") # Printer Serial Number
             print(f"    sn:        {p.sn}")
             print(f"    ip:        {p.ip_addr}")
             print(f"    wifi_mac:  {cli.util.pretty_mac(p.wifi_mac)}")
             print(f"    api_hosts: {', '.join(p.api_hosts)}")
             print(f"    p2p_hosts: {', '.join(p.p2p_hosts)}")
+            print()
 
 
 @main.group("webserver", help="Built-in webserver support")

@@ -13,10 +13,13 @@ servertable = {
 
 def mqtt_open(env):
     with env.config.open() as cfg:
-        printer = cfg.printers[0]
+        if env.printer >= len(cfg.printers):
+            log.fatal(f"Printer number {env.printer} out of range, max printer number is {len(cfg.printers)-1} ")
+            return
+        printer = cfg.printers[env.printer]
         acct = cfg.account
         server = servertable[acct.region]
-        env.log.info(f"Connecting to {server}")
+        env.log.info(f"Connecting printer {printer.p2p_duid} through {server}")
         client = AnkerMQTTBaseClient.login(
             printer.sn,
             acct.mqtt_username,
