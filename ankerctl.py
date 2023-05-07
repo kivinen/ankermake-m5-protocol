@@ -75,7 +75,6 @@ def main(ctx, verbose, quiet, insecure, printer):
     global log
     log = env.log
 
-    log.info({printer})
     if insecure:
         import urllib3
         urllib3.disable_warnings()
